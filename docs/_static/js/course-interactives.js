@@ -13,6 +13,26 @@
   const examples = new Map();
   let controlIdCounter = 0;
   let pyodidePromise = null;
+  let staticBaseUrl = null;
+
+  function staticAssetUrl(path) {
+    if (!staticBaseUrl) {
+      const staticScript =
+        document.currentScript ||
+        [...document.scripts].find((script) => script.src.includes("/_static/"));
+
+      if (staticScript && staticScript.src.includes("/_static/")) {
+        staticBaseUrl = staticScript.src.slice(
+          0,
+          staticScript.src.indexOf("/_static/") + "/_static/".length
+        );
+      } else {
+        staticBaseUrl = new URL("_static/", document.baseURI).href;
+      }
+    }
+
+    return new URL(path.replace(/^\/+/, ""), staticBaseUrl).href;
+  }
 
   function loadScript(src) {
     if (loadedScripts.has(src)) {
@@ -77,6 +97,32 @@
   function numberFromDataset(element, key, fallback) {
     const value = Number(element.dataset[key]);
     return Number.isFinite(value) ? value : fallback;
+  }
+
+  function resizePlotlyPlot(plot, plotly) {
+    if (!plot.isConnected || !plotly.Plots || !plotly.Plots.resize) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => plotly.Plots.resize(plot));
+  }
+
+  function renderPlotly(plotly, plot, data, layout, config = {}) {
+    return plotly
+      .react(
+        plot,
+        data,
+        {
+          autosize: true,
+          ...layout,
+        },
+        {
+          responsive: true,
+          displayModeBar: false,
+          ...config,
+        }
+      )
+      .then(() => resizePlotlyPlot(plot, plotly));
   }
 
   function makeRangeControl({ label, min, max, step, value, onInput }) {
@@ -213,22 +259,13 @@
     return wrapper;
   }
 
-  function registerExample(name, initializer, options = {}) {
-    examples.set(name, {
-      initializer,
-      selectors: options.selectors || [],
-    });
+  function registerExample(name, initializer) {
+    examples.set(name, { initializer });
   }
 
   function findExample(element) {
     if (element.dataset.example && examples.has(element.dataset.example)) {
       return examples.get(element.dataset.example);
-    }
-
-    for (const example of examples.values()) {
-      if (example.selectors.some((selector) => element.matches(selector))) {
-        return example;
-      }
     }
 
     return null;
@@ -245,7 +282,11 @@
 
       element.textContent = `Unknown interactive example: ${element.dataset.example || "none"}`;
     } catch (error) {
-      element.textContent = "This interactive example could not be loaded.";
+      const message =
+        error && error.userMessage
+          ? error.userMessage
+          : "This interactive example could not be loaded.";
+      element.textContent = message;
       console.error(error);
     }
   }
@@ -261,6 +302,9 @@
     makeSelectControl,
     numberFromDataset,
     registerExample,
+    renderPlotly,
+    resizePlotlyPlot,
+    staticAssetUrl,
   };
 
   document.addEventListener("DOMContentLoaded", () => {

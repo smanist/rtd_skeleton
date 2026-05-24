@@ -6,7 +6,15 @@ contains only a semantic placeholder; the controls and plot are created in
 
 ## Demo Plot
 
-:::{container} course-interactive course-interactive-demo-plot
+:::{course-interactive}
+:data-example: demo-plot
+Interactive example loading...
+:::
+
+## Python-backed Demo
+
+:::{course-interactive}
+:data-example: python-demo
 Interactive example loading...
 :::
 
@@ -15,4 +23,6 @@ Interactive example loading...
 Each example initializer receives the placeholder element, reads optional
 configuration from `data-*` attributes, and renders into that element. Shared
 helpers for controls and lazy-loaded libraries are available on
-`window.CourseInteractives`.
+`window.CourseInteractives`. Python-backed examples may keep source files under
+`docs/_static/py/examples/` and load them through Pyodide when served over a
+local HTTP server.
