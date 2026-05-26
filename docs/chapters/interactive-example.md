@@ -26,3 +26,9 @@ helpers for controls and lazy-loaded libraries are available on
 `window.CourseInteractives`. Python-backed examples may keep source files under
 `docs/_static/py/examples/` and load them through Pyodide when served over a
 local HTTP server.
+
+## Summary
+
+Interactive examples stay as small semantic placeholders in chapter Markdown,
+with behavior implemented in static JavaScript files and initialized by
+`window.CourseInteractives`.

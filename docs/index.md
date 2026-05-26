@@ -7,6 +7,7 @@ Markdown, Sphinx cross-references, figures, and LaTeX equations.
 :maxdepth: 1
 :caption: Contents
 
+chapters/01_grouped_navigation_demo/index
 chapters/getting-started
 chapters/interactive-example
 ```
